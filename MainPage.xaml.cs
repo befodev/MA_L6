@@ -1,4 +1,6 @@
-﻿namespace MA_L6
+﻿using MA_L5;
+
+namespace MA_L6
 {
     public partial class MainPage : ContentPage
     {
@@ -9,9 +11,12 @@
             InitializeComponent();
         }
 
-        private void OnCounterClicked(object? sender, EventArgs e)
+        private async void OnCounterClicked(object? sender, EventArgs e)
         {
-            count++;
+            NewLocationPage page = new();
+            await Navigation.PushAsync(page);
+
+        count++;
 
             if (count == 1)
                 CounterBtn.Text = $"Clicked {count} time";
