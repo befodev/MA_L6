@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MA_L5.NewLocationPage"
+             x:Class="MA_L6.NewLocationPage"
              Title="Поиск продукта">
     <VerticalStackLayout>
         <Grid RowDefinitions="*,*" ColumnDefinitions="8*,*" ColumnSpacing="6">
@@ -9,7 +9,7 @@
        Placeholder="Введите название продукта питания"  Grid.Row="0" Grid.Column="0" />
 
             <Button
-    Text="🔍" 
+    Text="🔍" x:Name="SearchBtn"
     Clicked="OnClick_Search"  Grid.Row="0" Grid.Column="1" />
         </Grid>
 
@@ -21,31 +21,31 @@
                     <DataTemplate>
                         <Border Margin="10,5"
                        Padding="15"
-                       CornerRadius="10"
-                       BorderColor="{AppThemeBinding Light=LightGray, Dark=DarkGray}"
                        BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2C}">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnTapped"/>
                             </Border.GestureRecognizers>
-                            <Grid RowDefinitions="Auto,Auto"
-                          ColumnDefinitions="*,Auto,Auto"
+                            <Grid RowDefinitions="*,*"
+                          ColumnDefinitions="*,12*"
                           RowSpacing="5"
                           ColumnSpacing="10">
 
-                                <Label IsVisible="False"  x:Name="IdHiddenLabel" Text="{Binding Id}" />
+                                <Image Aspect="Center" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Source="{Binding ThumbnailSource}"  />
 
-                                <Label Grid.Row="0"
+                                    <Label IsVisible="False"  x:Name="IdHiddenLabel" Text="{Binding Info.Id}" />
+
+                                    <Label Grid.Row="0"
                                        x:Name="NameBorderLabel"
-                               Grid.ColumnSpan="3"
-                               Text="{Binding Name}"
+                                       Grid.Column ="1"
+                               Text="{Binding Info.Name}"
                                FontSize="18"
                                FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
 
                                 <Label Grid.Row="1"
                                        x:Name="BrandBorderLabel"
-                               Grid.ColumnSpan="3"
-                               Text="{Binding Brand}"
+                                       Grid.Column ="1"
+                               Text="{Binding Info.Brand}"
                                FontSize="14"
                                TextColor="{AppThemeBinding Light=Gray, Dark=LightGray}"/>
                             </Grid>

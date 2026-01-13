@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.IO;
 
 namespace MA_L6
 {
@@ -6,14 +7,13 @@ namespace MA_L6
     {
         private static readonly HttpClient s_Client = new();
 
-        private async static Task<string?> RequestToServer(string url)
+        private async static Task<HttpContent?> RequestToServer(string url)
         {
             try
             {
                 HttpResponseMessage response = await s_Client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
-                string body = await response.Content.ReadAsStringAsync();
-                return body;
+                return response.Content;
             }
             catch (HttpRequestException)
             {
@@ -22,24 +22,52 @@ namespace MA_L6
         }
 
         private static string GetInfoURL(int Id)
-            => $"https://world.openfoodfacts.net/api/v2/product/{Id}.json?fields=nutriments,id,image_url,image_front_thumb_url,serving_quantity,ingredients_text,generic_name,brands";
+            => $"https://world.openfoodfacts.net/api/v2/product/{Id}.json?fields=nutriments,id,image_url,image_front_thumb_url,serving_quantity,serving_quantity_unit,ingredients_text,generic_name,brands,product_name";
 
         public static string GetSearchURL(string text)
     => $"https://world.openfoodfacts.org/cgi/search.pl?search_terms={text}&search_simple=1&action=process&json=1&page_size=5&"
-            + "fields=nutriments,id,image_url,image_front_thumb_url,serving_quantity,ingredients_text,generic_name,brands";
+            + "fields=nutriments,id,image_url,image_front_thumb_url,serving_quantity,serving_quantity_unit,ingredients_text,generic_name,brands,product_name";
 
         public async static Task<ProductInfo?> RequestProductInfo(int id)
         {
             string url = GetInfoURL(id);
-            string? resp = await RequestToServer(url);
+            string? resp = null;
+            if (!ImageCache.CheckImageInCache(url))
+            {
+                HttpContent? cnt = await RequestToServer(url);
+                if (cnt == null) return null;
+                resp = await cnt.ReadAsStringAsync();
+                if (resp is not null)
+                    ImageCache.SaveJsonToCache(url, resp);
+            }
+            else resp = ImageCache.GetJsonFromCache(url);
             return resp is null ? null : ProductInfo.FromRawJson(resp);
         }
 
         public async static Task<SearchProductResponse?> RequestProductSearch(string name)
         {
             string url = GetSearchURL(name);
-            string? resp = await RequestToServer(url);
+            string? resp = null;
+            if (!ImageCache.CheckImageInCache(url))
+            {
+                HttpContent? cnt = await RequestToServer(url);
+                if (cnt == null) return null;
+                resp = await cnt.ReadAsStringAsync();
+                if (resp is not null)
+                    ImageCache.SaveJsonToCache(url, resp);
+            }
+            else resp = ImageCache.GetJsonFromCache(url);
             return resp is null ? null : SearchProductResponse.FromRawJson(resp);
+        }
+
+        public async static Task<ImageSource?> RequestProductImage(string? url)
+        {
+            if (url == null) return null;
+            HttpContent? cnt = await RequestToServer(url);
+            if (cnt == null) return null;
+            Stream stream = await cnt.ReadAsStreamAsync();
+            ImageCache.SaveImageToCache(url, stream);
+            return ImageSource.FromStream(() => stream);
         }
     }
 }

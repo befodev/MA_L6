@@ -60,7 +60,7 @@ namespace MA_L6
     }
 
     public record ProductInfo(long Id, string Name, string Brand, string? ThumbnailURL, string? ImageURL,
-                              float? Quantity, ProductNutriments Nutriments, string? Ingredients)
+                              float? Quantity, string? QuantityUnit, ProductNutriments Nutriments, string? Ingredients)
     {
         // id => Id
         // brand => Brand
@@ -85,15 +85,16 @@ namespace MA_L6
         {
 
             long a = long.Parse(product.GetPropertyOrNull("id").GetString() ?? "0");
-            string b = product.GetPropertyOrNull("generic_name").GetString() ?? "Без названия";
+            string b = product.GetPropertyOrNull("product_name").GetString() ?? product.GetPropertyOrNull("generic_name").GetString() ?? "Без названия";
             string c = product.GetPropertyOrNull("brands").GetString() ?? "Без названия";
             string? d = product.GetPropertyOrNull("image_front_thumb_url").GetString();
             string? e = product.GetPropertyOrNull("image_url").GetString();
             float? f = product.GetPropertyOrNull("serving_quantity").GetSingle();
+            string? f2 = product.GetPropertyOrNull("serving_quantity_unit").GetString();
             ProductNutriments g = ProductNutriments.FromJsonElement(product.GetProperty("nutriments"));
             string? h = product.GetPropertyOrNull("ingredients_text").GetString() ?? "Неизвестно";
 
-            ProductInfo info = new(a, b, c, d, e, f, g, h);
+            ProductInfo info = new(a, b, c, d, e, f, f2, g, h);
             return info;
         }
     }
